@@ -10,15 +10,23 @@ export const POST = async (req) => {
   const file = (body.file) || null;
 
   if (file) {
-    const buffer = Buffer.from(await file.arrayBuffer());
-    if (!fs.existsSync(dirName)) {
-      fs.mkdirSync(dirName);
+    try {
+        const buffer = Buffer.from(await file.arrayBuffer());
+        if (!fs.existsSync(dirName)) {
+          fs.mkdirSync(dirName);
+        }
+    
+        fs.writeFileSync(
+          path.resolve(dirName, (body.file).name),
+          buffer
+        );
+    } catch (error) {
+        console.log(error);
+        return NextResponse.json({
+          success: false,
+          error: error?.message || "Something went wrong",
+        });
     }
-
-    fs.writeFileSync(
-      path.resolve(dirName, (body.file).name),
-      buffer
-    );
   } else {
     return NextResponse.json({
       success: false,

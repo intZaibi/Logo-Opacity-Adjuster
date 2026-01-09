@@ -12,8 +12,9 @@ export default function Modal({logo, showModal, setShowModal, saveLogo}) {
 
   const normalClasses = 'cursor-pointer col-span-1 h-14 w-14 border border-black rounded-xl border-dashed'
   const selectedClasses = 'cursor-pointer col-span-1 h-14 w-14 border relative border-sky-600 rounded-xl border-dashed'
-  const innerChild = [<div className="absolute w-1 h-full bg-sky-600 left-[47%]"></div>,
-      <div className="absolute w-full h-1 bg-sky-600 top-[47%]"></div>
+  const innerChild = [
+      <div key={"innerChild 1"} className="absolute w-1 h-full bg-sky-600 left-[47%]"></div>,
+      <div key={"innerChild 2"} className="absolute w-full h-1 bg-sky-600 top-[47%]"></div>
     ]
 
   const positions = [1, 2, 3, 4, 5, 6, 7, 8, 9]
@@ -37,6 +38,7 @@ export default function Modal({logo, showModal, setShowModal, saveLogo}) {
       const base64Image = canvas.toDataURL("image/png");
 
       saveLogo(base64Image);
+      
     };
   };
 

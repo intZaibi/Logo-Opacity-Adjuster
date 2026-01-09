@@ -43,7 +43,6 @@ export default function App() {
       if (response.ok) {
         alert('File uploaded successfully');
         setLogoName(result.name);
-        console.log(result.name)
       } else {
         alert(`Failed to upload file`);
       }
@@ -64,11 +63,20 @@ export default function App() {
       body: formData,
     })
       .then((response) => response.json())
-      .then((data) => {
+      .then(async (data) => {
         console.log('Success:', data);
         setBtnTitle(data.name);
         setShowModal(!showModal);
         alert('Logo saved successfully');
+        // Download the uploaded file
+        const fileResponse = await fetch(`/uploads/${data.name}`);
+        const blob = await fileResponse.blob();
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = data.name;
+        link.click();
+        URL.revokeObjectURL(url);
       })
       .catch((error) => {
         console.error('Error:', error);
