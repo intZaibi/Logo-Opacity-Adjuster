@@ -1,9 +1,12 @@
 "use client";
 import Modal from "@/components/Modal";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 export default function App() {
   const [logo, setLogo] = useState(null);
+  const [logoURL, setLogoURL] = useState("");
   const [logoName, setLogoName] = useState('Logo');
   const [showModal, setShowModal] = useState(false);
   const [btnTitle, setBtnTitle] = useState(null);
@@ -15,20 +18,35 @@ export default function App() {
   // Handling initial logo file upload
   const handleLogoUpload = (e) => {
     const file = e.target.files[0];
+    if (!file) return;
     if (file.size > 5 * 1024 * 1024) { // Limit file size to 5MB
-      alert('File size exceeds the 5MB limit.');
+      toast.error('File size exceeds the 5MB limit.');
       return;
     }
+
+    const logoUrl = URL.createObjectURL(file);
     
     if (file) {
       setLogo(file);
+      setLogoURL(logoUrl);
       setShowModal(true);
-      saveUploadedLogo(file);
+      saveLogo(file);
     }
   };
 
+  const router = useRouter();
+
+  // Clean up the object URL when component unmounts or logo changes
+  useEffect(() => {
+    return () => {
+      if (logoURL) {
+        URL.revokeObjectURL(logoURL);
+      }
+    };
+  }, [logoURL]);
+
   // Function to save initially uploaded logo in uploads folder
-  const saveUploadedLogo = async (file) => {
+  const saveLogo = async (file) => {
 
     const formData = new FormData();
     formData.append('file', file);
@@ -39,54 +57,25 @@ export default function App() {
         body: formData,
       });
 
+      if (response.status === 429) {
+        toast.error('Upload limit exceeded');
+        router.push('/notAllowed');
+        return;
+      }
+
       const result = await response.json();
       if (response.ok) {
-        alert('File uploaded successfully');
         setLogoName(result.name);
-      } else {
-        alert(`Failed to upload file`);
       }
-    } catch (error) {
-      console.error('Error uploading file:', error);
-      alert('An error occurred during file upload.');
+    } catch (error){
+      // Logic to handle error
     }
   };
 
-  // Function to save the logo after changes 
-  const saveLogo = (file)=>{
-    const formData = new FormData();
-    formData.append('base64Image', file);
-    formData.append('fileName', logoName);
-
-    fetch('/api/saveLogoWithOpacity', {
-      method: 'POST',
-      body: formData,
-    })
-      .then((response) => response.json())
-      .then(async (data) => {
-        console.log('Success:', data);
-        setBtnTitle(data.name);
-        setShowModal(!showModal);
-        alert('Logo saved successfully');
-        // Download the uploaded file
-        const fileResponse = await fetch(`/uploads/${data.name}`);
-        const blob = await fileResponse.blob();
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = data.name;
-        link.click();
-        URL.revokeObjectURL(url);
-      })
-      .catch((error) => {
-        console.error('Error:', error);
-        alert('An error occurred during logo save.');
-      });
-  }
-
   // Function to remove the current logo
   const handleRemoveLogo = () => {
-    setLogo(null); 
+    setLogo(null);
+    setLogoURL(""); 
     setLogoName(null);
     setBtnTitle(null);
   };
@@ -94,7 +83,7 @@ export default function App() {
   return (
     <div className="bg-gray-200 h-screen overflow-hidden">
       {/* Logo Adjustment Preview */}
-      <Modal logo={logoName} showModal={showModal} setShowModal={updateShowModal} saveLogo={saveLogo}/>
+      <Modal logo={logoURL} logoName={logoName} showModal={showModal} setShowModal={updateShowModal}/>
 
       <h1 className="pl-10 pt-10 font-bold text-2xl">Logo Opacity Changer</h1>
       

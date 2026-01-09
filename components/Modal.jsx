@@ -2,7 +2,7 @@ import LandscapeGrid from '@/components/LandscapeGrid'
 import PortraitGrid from '@/components/PortraitGrid'
 import { useState } from 'react'
 
-export default function Modal({logo, showModal, setShowModal, saveLogo}) {
+export default function Modal({logo, logoName, showModal, setShowModal}) {
   const [opacity, setOpacity] = useState(100);
   const [choice, setChoice] = useState(1);
   
@@ -19,26 +19,19 @@ export default function Modal({logo, showModal, setShowModal, saveLogo}) {
 
   const positions = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 
-  // Using a canvas element to generate the logo with set opacity
+  // Using a canvas element to generate the logoName with set opacity
   const handleSaveLogo = async () => {
 
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
 
     const img = new Image();
-    img.src = `/uploads/${logo}`;
+    img.src = `/uploads/${logoName}`;
     img.onload = () => {
-
       canvas.width = img.width;
       canvas.height = img.height;
-      
       ctx.globalAlpha = opacity / 100;
       ctx.drawImage(img, 0, 0);
-
-      const base64Image = canvas.toDataURL("image/png");
-
-      saveLogo(base64Image);
-      
     };
   };
 
@@ -61,8 +54,8 @@ export default function Modal({logo, showModal, setShowModal, saveLogo}) {
         <div className='lg:flex flex-col lg:flex-row w-full h-full justify-center items-center gap-8'>
           {/* portrait and landscape preview component */}
           <div className="lg:h-[90%] h-full lg:w-[75%] flex items-center lg:items-start lg:flex-row flex-col gap-4">
-            <PortraitGrid logo={logo} choice={choice} opacity={opacity}/>
-            <LandscapeGrid logo={logo} choice={choice} opacity={opacity}/>
+            <PortraitGrid logo={logo} logoName={logoName} choice={choice} opacity={opacity}/>
+            <LandscapeGrid logo={logo} logoName={logoName} choice={choice} opacity={opacity}/>
           </div>
 
           {/* Right Side Components wrapper */}

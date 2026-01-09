@@ -1,8 +1,8 @@
 import Image from "next/image";
 import React from "react";
 
-export default function LandscapeGrid({logo, choice, opacity }) {
-  const imgElement = <Image style={{ opacity : opacity/100 }} src={`/uploads/${logo}`} width={60} height={60} alt='logo'/>
+export default function LandscapeGrid({logo, logoName, choice, opacity }) {
+  const imgElement = logo ? <Image style={{ opacity : opacity/100 }} src={logo|| ""} width={60} height={60} alt='logo'/> : null;
   const positions = [1, 2, 3, 4, 5, 6, 7, 8, 9];
   return (
     // wrapper for landscape grid
